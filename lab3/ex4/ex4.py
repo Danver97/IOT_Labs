@@ -36,8 +36,8 @@ else:
     total = 8000
 
 train_files = filenames[:int(total*0.8)]
-val_files = filenames[int(total*0.8):int(total*0.1)]
-test_files = filenames[int(total*0.1):]
+val_files = filenames[int(total*0.8):int(total*0.9)]
+test_files = filenames[int(total*0.9):]
 
 LABELS = np.array(tf.io.gfile.listdir(str(data_dir)))
 LABELS = LABELS[LABELS != "README.md"]
