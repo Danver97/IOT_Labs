@@ -122,3 +122,20 @@ class SignalGenerator:
         if train is True:
             ds = ds.shuffle(100, reshuffle_each_iteration=True)
         return ds
+
+STFT_OPTIONS = {'frame_length': 256, 'frame_step': 128, 'mfcc': False}
+MFCC_OPTIONS = {'frame_length': 640, 'frame_step': 320, 'mfcc': True,
+                'lower_frequency': 20, 'upper_frequency': 4000, 'num_mel_bins': 40, 
+                'num_coefficients': 10}
+
+if args.mfcc is True:
+    options = MFCC_OPTIONS
+    strides = [2, 1]
+else:
+    options = STFT_OPTIONS
+    strides = [2, 2]
+
+generator = SignalGenerator(LABELS, 16000, **options)
+train_ds = generator.make_dataset(train_files, True)
+val_ds = generator.make_dataset(val_files, False)
+test_ds = generator.make_dataset(test_files, False)
