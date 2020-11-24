@@ -6,8 +6,8 @@ import numpy as np
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--model', type = str, required=True, help="model name")
-parser.add_argument('--mfcc', required=True, help="use MFCCs")
-parser.add_argument('--silence', required=True, help="add silence")
+parser.add_argument('--mfcc', action='store_true', help="use MFCCs")
+parser.add_argument('--silence', action='store_true', help="add silence")
 args = parser.parse_args()
 
 seed = 42
