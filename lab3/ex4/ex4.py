@@ -18,7 +18,7 @@ if args.silence is True:
     data_dir = os.path.join('.', 'data', 'mini_speech_commands_silence')
 else:
     zip_path = keras.utils.get_file(
-        origin = "",
+        origin = "http://storage.googleapis.com/download.tensorflow.org/data/mini_speech_commands.zip",
         fname = "mini_speech_commands.zip",
         extract = True,
         cache_dir = ".",
