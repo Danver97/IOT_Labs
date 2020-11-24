@@ -56,7 +56,7 @@ class SignalGenerator:
         num_spectrogram_bins = (frame_length) // 2 + 1
         
         if mfcc is True:
-            self.linear_to_mel_weight_matrix = tf.linears.linear_to_mel_weight_matrix(
+            self.linear_to_mel_weight_matrix = tf.signal.linear_to_mel_weight_matrix(
                 self.num_mel_bins, num_spectrogram_bins, self.sampling_rate,
                 self.lower_frequency, self.upper_frequency
             )
@@ -91,7 +91,7 @@ class SignalGenerator:
     def get_mfccs(self, spectrogram):
         mel_spectrogram = tf.tensordot(spectrogram, self.linear_to_mel_weight_matrix, 1)
         log_mel_spectrogram = tf.math.log(mel_spectrogram + 1.e-6)
-        mfccs = tf.signals.mfccs_from_log_mel_spectrogram(log_mel_spectrogram)
+        mfccs = tf.signal.mfccs_from_log_mel_spectrograms(log_mel_spectrogram)
         mfccs = mfccs[..., :self.num_coefficients]
 
         return mfccs
