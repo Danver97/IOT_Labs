@@ -140,9 +140,48 @@ train_ds = generator.make_dataset(train_files, True)
 val_ds = generator.make_dataset(val_files, False)
 test_ds = generator.make_dataset(test_files, False)
 
+if args.silence is True:
+    units = 9
+else: 
+    units = 8
 
+mlp = tf.keras.Sequential([
+    tf.keras.layers.Flatten(),
+    tf.keras.layers.Dense(units = 256, activation = "relu"),
+    tf.keras.layers.Dense(units = 256, activation = "relu"),
+    tf.keras.layers.Dense(units = 256, activation = "relu"),
+    tf.keras.layers.Dense(units = units)
+])
 
+cnn = tf.keras.Sequential([
+    tf.keras.layers.Conv2D(filters = 128, kernel_size = [3, 3], strides = strides, use_bias = False),
+    tf.keras.layers.BatchNormalization(momentum = 1),
+    tf.keras.layers.ReLU(),
+    tf.keras.layers.Conv2D(filters = 128, kernel_size = [3, 3], strides = [1, 1], use_bias = False),
+    tf.keras.layers.BatchNormalization(momentum = 1),
+    tf.keras.layers.ReLU(),
+    tf.keras.layers.Conv2D(filters = 128, kernel_size = [3, 3], strides = [1, 1], use_bias = False),
+    tf.keras.layers.BatchNormalization(momentum = 1),
+    tf.keras.layers.ReLU(),
+    tf.keras.layers.GlobalAveragePooling2D(),
+    tf.keras.layers.Dense(units = units)
+])
 
+dscnn = tf.keras.Sequential([
+    tf.keras.layers.Conv2D(filters = 256, kernel_size = [3, 3], strides = strides, use_bias = False),
+    tf.keras.layers.BatchNormalization(momentum = 1),
+    tf.keras.layers.ReLU(),
+    tf.keras.layers.DepthwiseConv2D(kernel_size = [3, 3], strides = [1, 1], use_bias = False),
+    tf.keras.layers.Conv2D(filters = 256, kernel_size = [1, 1], strides = [1, 1], use_bias = False),
+    tf.keras.layers.BatchNormalization(momentum = 1),
+    tf.keras.layers.ReLU(),
+    tf.keras.layers.DepthwiseConv2D(kernel_size = [3, 3], strides = [1, 1], use_bias = False),
+    tf.keras.layers.Conv2D(filters = 256, kernel_size = [1, 1], strides = [1, 1], use_bias = False),
+    tf.keras.layers.BatchNormalization(momentum = 1),
+    tf.keras.layers.ReLU(),
+    tf.keras.layers.GlobalAveragePooling2D(),
+    tf.keras.layers.Dense(units = units)
+])
 
 
 MODELS = { 'mlp': mlp, 'cnn': cnn, 'dscnn': dscnn }
