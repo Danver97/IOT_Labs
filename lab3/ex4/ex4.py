@@ -155,13 +155,13 @@ mlp = tf.keras.Sequential([
 
 cnn = tf.keras.Sequential([
     tf.keras.layers.Conv2D(filters = 128, kernel_size = [3, 3], strides = strides, use_bias = False),
-    tf.keras.layers.BatchNormalization(momentum = 1),
+    tf.keras.layers.BatchNormalization(momentum = 0.1),
     tf.keras.layers.ReLU(),
     tf.keras.layers.Conv2D(filters = 128, kernel_size = [3, 3], strides = [1, 1], use_bias = False),
-    tf.keras.layers.BatchNormalization(momentum = 1),
+    tf.keras.layers.BatchNormalization(momentum = 0.1),
     tf.keras.layers.ReLU(),
     tf.keras.layers.Conv2D(filters = 128, kernel_size = [3, 3], strides = [1, 1], use_bias = False),
-    tf.keras.layers.BatchNormalization(momentum = 1),
+    tf.keras.layers.BatchNormalization(momentum = 0.1),
     tf.keras.layers.ReLU(),
     tf.keras.layers.GlobalAveragePooling2D(),
     tf.keras.layers.Dense(units = units)
@@ -169,15 +169,15 @@ cnn = tf.keras.Sequential([
 
 dscnn = tf.keras.Sequential([
     tf.keras.layers.Conv2D(filters = 256, kernel_size = [3, 3], strides = strides, use_bias = False),
-    tf.keras.layers.BatchNormalization(momentum = 1),
+    tf.keras.layers.BatchNormalization(momentum = 0.1),
     tf.keras.layers.ReLU(),
     tf.keras.layers.DepthwiseConv2D(kernel_size = [3, 3], strides = [1, 1], use_bias = False),
     tf.keras.layers.Conv2D(filters = 256, kernel_size = [1, 1], strides = [1, 1], use_bias = False),
-    tf.keras.layers.BatchNormalization(momentum = 1),
+    tf.keras.layers.BatchNormalization(momentum = 0.1),
     tf.keras.layers.ReLU(),
     tf.keras.layers.DepthwiseConv2D(kernel_size = [3, 3], strides = [1, 1], use_bias = False),
     tf.keras.layers.Conv2D(filters = 256, kernel_size = [1, 1], strides = [1, 1], use_bias = False),
-    tf.keras.layers.BatchNormalization(momentum = 1),
+    tf.keras.layers.BatchNormalization(momentum = 0.1),
     tf.keras.layers.ReLU(),
     tf.keras.layers.GlobalAveragePooling2D(),
     tf.keras.layers.Dense(units = units)
