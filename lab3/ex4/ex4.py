@@ -56,7 +56,7 @@ class SignalGenerator:
         num_spectrogram_bins = (frame_length) // 2 + 1
         
         if mfcc is True:
-            self.linear_to_mel_weight_matrix = tf.linear.linear_to_mel_weight_matrix(
+            self.linear_to_mel_weight_matrix = tf.linears.linear_to_mel_weight_matrix(
                 self.num_mel_bins, num_spectrogram_bins, self.sampling_rate,
                 self.lower_frequency, self.upper_frequency
             )
