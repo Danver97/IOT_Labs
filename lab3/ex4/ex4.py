@@ -139,3 +139,40 @@ generator = SignalGenerator(LABELS, 16000, **options)
 train_ds = generator.make_dataset(train_files, True)
 val_ds = generator.make_dataset(val_files, False)
 test_ds = generator.make_dataset(test_files, False)
+
+
+
+
+
+
+MODELS = { 'mlp': mlp, 'cnn': cnn, 'dscnn': dscnn }
+model = MODELS[args.model]
+
+loss = tf.losses.SparseCategoricalCrossentropy(from_logits=True)
+optimizer = tf.optimizers.Adam()
+metrics = [tf.metrics.SparseCategoricalAccuracy()]
+
+checkpoint_filepath = './checkpoints/kws_{}_{}/weights'.format(args.model, args.mfcc)
+cp = tf.keras.callbacks.ModelCheckpoint(
+    filepath=checkpoint_filepath,
+    save_weights_only=True,
+    monitor='val_sparse_categorical_accuracy',
+    mode='max',
+    save_best_only=True
+)
+
+if not os.path.exists(os.path.dirname(checkpoint_filepath)):
+    os.makedirs(os.path.dirname(checkpoint_filepath))
+
+model.compile(loss=loss, optimizer=optimizer, metrics=metrics)
+model.fit(train_ds, epochs=20, validation_data=val_ds, callbacks=[cp])
+
+print(model.summary())
+
+model.load_weights(checkpoint_filepath)
+loss, accuracy = model.evaluate(test_ds)
+print('Accuracy: {:.2f}%'.format(accuracy*100))
+
+saved_model_dir = './models/kws_{}_{}'.format(args.model, args.mfcc)
+if not os.path.exists(saved_model_dir):
+    os.makedirs(saved_model_dir)
