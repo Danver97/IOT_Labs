@@ -187,7 +187,7 @@ utilityPlot.append((mae, tot_params, 'mae'))
 # 3.5
 run_model = tf.function(lambda x: model(x))
 concrete_func = run_model.get_concrete_function(tf.TensorSpec([1, 6, 2],tf.float32))
-model.save("./lab3/out/models/", signatures=concrete_func)
+model.save("./lab3/ex3/out/models/", signatures=concrete_func)
 
 
 print("#Params",model.summary())

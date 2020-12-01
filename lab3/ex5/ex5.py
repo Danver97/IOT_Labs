@@ -2,8 +2,10 @@ import tensorflow as tf
 import os
 
 
-saved_model_dir = "/Users/Daniele/Dropbox/MAGISTRALE/Second Year/Machine Learning for IOT/labs/IOT_Labs/lab3/ex3/out/models/" #abs path to model dir
-tflite_model_dir = "/Users/Daniele/Dropbox/MAGISTRALE/Second Year/Machine Learning for IOT/labs/IOT_Labs/ex5/out/models_lite" # abs path to new model dir
+saved_model_dir = "./lab3/ex3/out/models" # os.path.abspath("../ex3/out/models") #abs path to model dir
+print(saved_model_dir, os.listdir("./lab3/ex3/out/models"))
+tflite_model_dir = "./lab3/ex5/out/models_lite.tflite" # abs path to new model dir
+print(tflite_model_dir)
 converter = tf.lite.TFLiteConverter.from_saved_model(saved_model_dir)
 tflite_model = converter.convert()
 
@@ -13,9 +15,9 @@ with open(tflite_model_dir, 'wb') as fp:
      fp.write(tflite_model)
 
      # Measure the tflite file size for each model (use getsize from os.path)
-     #path = "some path"
-     #size = os.path.getsize(path)
-     #print(size)
+     # path = "some path"
+     size = os.path.getsize(tflite_model_dir)
+     print('size:', size)
      # copy the models to the board (already on the board)
 
 
