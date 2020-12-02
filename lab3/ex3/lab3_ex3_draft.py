@@ -162,6 +162,11 @@ if os.path.exists(filepath) is False:
     os.makedirs(filepath)
 model.save(filepath)
 
+# lab 4- @todo test
+tf.data.experimental.save(train_ds, './th_train')
+tf.data.experimental.save(val_ds, './th_val')
+tf.data.experimental.save(test_ds, './th_test')
+
 loss, acc = model.evaluate(test_ds)
 
 if LABEL_OPTIONS<2:
