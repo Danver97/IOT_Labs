@@ -1,9 +1,10 @@
 import pyaudio
 import numpy as np
 import tensorflow as tf
+import tensorflow.lite as tflite
 import wave
 import time
-import time
+import sys
 import os 
 import io
 
@@ -20,17 +21,12 @@ chans = 1 # 1 channel
 samples = 10
 sample_ratio = 3
 new_sample_rate = 16000
-frame_length = 256
-frame_step =128
 num_mel_bins = 40
-num_spectrogram_bins = 256
 lower_freq_mel = 20
 upper_freq_mel = 4000
 num_coefficients = 10
 
-linear_to_mel_weight_matrix = tf.signal.linear_to_mel_weight_matrix(
-            num_mel_bins, num_spectrogram_bins, samp_rate,
-            lower_freq_mel, upper_freq_mel)
+
 
 def pad(audio):
     zero_padding = tf.zeros([new_sample_rate] - tf.shape(audio), dtype=tf.float32)
@@ -39,7 +35,7 @@ def pad(audio):
 
     return audio
 
-def get_spectrogram(audio):
+def get_spectrogram(audio, frame_length = 256, frame_step = 128):
     stft = tf.signal.stft(audio, frame_length=frame_length,
             frame_step=frame_step, fft_length=frame_length)
     spectrogram = tf.abs(stft)
@@ -47,6 +43,9 @@ def get_spectrogram(audio):
     return spectrogram
 
 def get_mfccs(spectrogram):
+    linear_to_mel_weight_matrix = tf.signal.linear_to_mel_weight_matrix(
+        num_mel_bins, 321, new_sample_rate,
+        lower_freq_mel, upper_freq_mel)
     mel_spectrogram = tf.tensordot(spectrogram,linear_to_mel_weight_matrix, 1)
     log_mel_spectrogram = tf.math.log(mel_spectrogram + 1.e-6)
     mfccs = tf.signal.mfccs_from_log_mel_spectrograms(log_mel_spectrogram)
@@ -64,7 +63,7 @@ def preprocess_with_stft(audio):
 
 def preprocess_with_mfcc(audio):
     audio = pad(audio)
-    spectrogram = get_spectrogram(audio)
+    spectrogram = get_spectrogram(audio,640,320)
     mfccs = get_mfccs(spectrogram)
     mfccs = tf.expand_dims(mfccs, -1)
 
@@ -80,18 +79,19 @@ stream = audio_stream.open(format = form_1,
                     start = False)
 
 print('recording...')
+time.sleep(0.5)
 stream.start_stream()
 for ii in range(int((samp_rate/chunk)*record_secs)):
     buffer.write(stream.read(chunk))  
-stream.stop_stream() 
+stream.stop_stream()
 print('STOP') 
 buffer.seek(0)
 audio = np.frombuffer(buffer.getvalue(), dtype=np.int16)
 
 tf_audio = signal.resample_poly(audio, 1, sample_ratio)
-tf_audio = tf_audio.astype(np.int16)
+tf_audio = tf.convert_to_tensor(tf_audio, dtype=tf.float32)
 
-stream.stop_stream()
+
 stream.close()
 audio_stream.terminate()
 
@@ -102,10 +102,13 @@ t = time.time()
 audio_mfcc = preprocess_with_mfcc(tf_audio)
 print("mfcc_preprocessing:",time.time() - t)
 
-labels_silence = ['down', 'right', 'left', 'up', 'yes', 'no', 'go','stop','silence']    
-labels = ['down', 'right', 'left', 'up', 'yes', 'no', 'go', 'stop']
+audio_stft = tf.expand_dims(audio_stft, axis=0)
+audio_mfcc = tf.expand_dims(audio_mfcc, axis=0)
+labels_silence = ['down','go','left','no','right','silence','stop','up','yes']   
+labels = ['down','go','left','no','right','stop','up','yes']
 for model_name in os.listdir('tflite_models'):
-    interpreter = tflite.Interpreter(model_path=args.input_model)
+    print("===============================",model_name,"===============================")
+    interpreter = tflite.Interpreter(model_path='tflite_models/'+model_name)
     interpreter.allocate_tensors()
     input_details = interpreter.get_input_details()
     output_details = interpreter.get_output_details()
@@ -116,6 +119,8 @@ for model_name in os.listdir('tflite_models'):
         interpreter.set_tensor(input_details[0]['index'], audio_mfcc)
     interpreter.invoke()
     prediction = interpreter.get_tensor(output_details[0]['index'])
-
-
-    print(f"Model: {model_name} - Prediction: {prediction}")
+    if "silence" in model_name:
+        prediction = labels_silence[np.argmax(prediction)]
+    else:
+        prediction = labels[np.argmax(prediction)] 
+    print("Prediction:",prediction)
